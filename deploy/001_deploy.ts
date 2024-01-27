@@ -9,7 +9,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const { deployer, diamondAdmin } = await getNamedAccounts();
 
-  await diamond.deploy("Cradle_Test", {
+  await diamond.deploy("Cradle_Dev", {
     from: deployer,
     owner: diamondAdmin,
     facets: [""],

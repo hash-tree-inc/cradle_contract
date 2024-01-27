@@ -3,6 +3,7 @@ import "@nomicfoundation/hardhat-toolbox";
 import "hardhat-deploy";
 import "dotenv/config";
 import '@openzeppelin/hardhat-upgrades';
+import "hardhat-storage-layout";
 
 const config: HardhatUserConfig = {
   solidity: {

@@ -14,5 +14,21 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     owner: diamondAdmin,
     facets: [""],
   });
+  
+  const networkName = deployments.getNetworkName();
+  if (networkName == "test") {
+    const abi = JSON.parse(
+      fs.readFileSync("./deployments/test/Cradle_Dev.json", "utf8")
+    ).abi;
+  
+    fs.writeFileSync("./Cradle_Dev.json", JSON.stringify(abi));
+  } else {
+    const abi = JSON.parse(
+      fs.readFileSync("./deployments/live/Cradle_Dev.json", "utf8")
+    ).abi;
+  
+    fs.writeFileSync("./Cradle_Dev.json", JSON.stringify(abi));
+  }
 };
+
 export default func;

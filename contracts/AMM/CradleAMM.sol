@@ -5,12 +5,14 @@ import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-// @openzeppelin ERC20 interface
 
+import "../shared/interfaces/IERC20.sol";
+import "../shared/interfaces/IGCKlay.sol";
 contract CradleAMM is Initializable, PausableUpgradeable, AccessControlUpgradeable, UUPSUpgradeable {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
-    
+    IGCKLAY public gcklay;
+    IERC20 public cradle;
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
@@ -41,4 +43,13 @@ contract CradleAMM is Initializable, PausableUpgradeable, AccessControlUpgradeab
         onlyRole(UPGRADER_ROLE)
         override
     {}
+
+    function cradleBuy(uint _amount) external payable {
+        require(msg.value == _amount);
+        gcklay.stakeFor{value: msg.value}(address(this));       
+        cradle.transfer(msg.sender, _amount);       
+    }
+
+    // function cradleRefund(uint _amount) 
+
 }

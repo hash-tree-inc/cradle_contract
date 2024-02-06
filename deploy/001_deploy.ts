@@ -9,10 +9,26 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const { deployer, diamondAdmin } = await getNamedAccounts();
 
-  await diamond.deploy("Cradle_Test", {
+  await diamond.deploy("Cradle_Dev", {
     from: deployer,
     owner: diamondAdmin,
     facets: [""],
   });
+
+  const networkName = deployments.getNetworkName();
+  if (networkName == "test") {
+    const abi = JSON.parse(
+      fs.readFileSync("./deployments/test/Cradle_Dev.json", "utf8")
+    ).abi;
+
+    fs.writeFileSync("./Cradle_Dev.json", JSON.stringify(abi));
+  } else {
+    const abi = JSON.parse(
+      fs.readFileSync("./deployments/live/Cradle_Dev.json", "utf8")
+    ).abi;
+
+    fs.writeFileSync("./Cradle_Dev.json", JSON.stringify(abi));
+  }
 };
+
 export default func;

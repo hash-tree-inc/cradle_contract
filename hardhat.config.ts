@@ -2,10 +2,19 @@ import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import "hardhat-deploy";
 import "dotenv/config";
+import '@openzeppelin/hardhat-upgrades';
+import "hardhat-storage-layout";
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.19",
-
+  solidity: {
+    version:"0.8.22",
+  settings: {
+    optimizer: {
+      enabled: true,
+      runs: 200,
+    },
+  }
+  },
   namedAccounts: {
     deployer: 0,
   },
@@ -19,7 +28,7 @@ const config: HardhatUserConfig = {
     test: {
       url: process.env.KLAYTN_NODE_TEST_ENDPOINT,
       accounts: [process.env.TEST_PRIV_KEY || ""],
-      chainId: 8217,
+      chainId: 1001,
       gasPrice: 25000000000,
     },
   },

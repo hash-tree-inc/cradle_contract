@@ -6,8 +6,8 @@ import {LibMeta} from "../../shared/libraries/LibMeta.sol";
 
 contract AdminFacet is Modifiers {
 
-    function setAdmin(address _admin) external onlyAdmin {
-        s.admin = _admin;
+    function setContract(string memory _name, address _contractAddr) external onlyAdmin {
+        s.contracts[_name] = _contractAddr;
     }
 
 }

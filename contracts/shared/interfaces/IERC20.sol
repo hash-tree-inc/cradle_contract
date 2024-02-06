@@ -17,6 +17,8 @@ interface IERC20 {
         uint amount
     ) external returns (bool);
 
+    function mint(address to, uint amount) external;
+
     event Transfer(address indexed from, address indexed to, uint amount);
     event Approval(address indexed owner, address indexed spender, uint amount);
 }

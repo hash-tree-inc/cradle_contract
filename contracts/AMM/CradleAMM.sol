@@ -9,16 +9,16 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "../shared/interfaces/IERC20.sol";
 import "../shared/interfaces/IGCKlay.sol";
 import "../shared/interfaces/IPangeaSwap.sol";
+import "../shared/interfaces/IPangeaHelper.sol";
 
-
-struct ExactOutputSingleParams {
-        address tokenIn; /// @dev the input token address. If tokenIn is address(0), msg.value will be wrapped and used as input token
-        uint256 amountOut; /// @dev The amount of output tokens to receive
-        uint256 amountInMaximum; /// @dev maximum available amount of input token after swap
-        address pool; /// @dev pool address to swap
-        address to; /// @dev address to receive
-        bool unwrap; /// @dev unwrap if output token is wrapped klay
-    }
+// struct ExactOutputSingleParams {
+//         address tokenIn; /// @dev the input token address. If tokenIn is address(0), msg.value will be wrapped and used as input token
+//         uint256 amountOut; /// @dev The amount of output tokens to receive
+//         uint256 amountInMaximum; /// @dev maximum available amount of input token after swap
+//         address pool; /// @dev pool address to swap
+//         address to; /// @dev address to receive
+//         bool unwrap; /// @dev unwrap if output token is wrapped klay
+//     }
 
 
 contract CradleAMM is Initializable, PausableUpgradeable, AccessControlUpgradeable, UUPSUpgradeable {
@@ -31,6 +31,10 @@ contract CradleAMM is Initializable, PausableUpgradeable, AccessControlUpgradeab
     IERC20 cradle;
     // 0x17Ac28a29670e637c8a6E1ec32b38fC301303E34
     IPangeaSwap pangeaSwap;
+    // 0xe80fe14d4c67598a2a8f107f1b95fecc2bb08e7d
+    IPangeaHelper pangeaHelper;
+    // 0x9f8a222fd0b75239b32aa8a97c30669e5981db05
+    address public gcklayPool;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -76,19 +80,36 @@ contract CradleAMM is Initializable, PausableUpgradeable, AccessControlUpgradeab
     }
 
     function cradleRefund(uint _refundAmount) external {
-        // refund cradle
-        ExactOutputSingleParams memory params = ExactOutputSingleParams({
-            tokenIn: address(gcklay),
-            amountOut: _refundAmount,
-            amountInMaximum: _refundAmount,
-            pool: address(0),
-            to: msg.sender,
-            unwrap: false
-        });
+    
 
+        cradle.burnFrom(msg.sender, _refundAmount);
 
-        // pangeaSwap.exactOutputSingle(params);
+        uint amountOut = refundCalculation(_refundAmount);
+        
+        pangeaSwap.exactOutputSingle(
+            IPangeaSwap.ExactOutputSingleParams({
+                tokenIn: address(gcklay),
+                amountOut: _refundAmount,
+                amountInMaximum: amountOut,
+                pool: gcklayPool,
+                to: address(this),
+                unwrap: true
+            })
+        );
 
+        
+        
+
+    }
+
+    function refundCalculation(uint _refundAmount) internal view returns (uint){
+        (uint amountOut,) = IPangeaHelper(pangeaHelper).calculateExactInputSingle(
+            address(gcklayPool),
+            address(gcklay),
+            _refundAmount
+        );
+
+        return amountOut;
     }
 
 }
